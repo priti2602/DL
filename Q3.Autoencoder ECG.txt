@@ -29,16 +29,15 @@ df['c0'].value_counts()
 x_train, x_test, y_train, y_test = train_test_split(df.values, df.values[:,0:1], test_size=0.2, random_state=111)
 
 scaler = MinMaxScaler()
-scaler.fit(x_train[:, 1:])
-train_data_scaled = scaler.transform(x_train[:, 1:])
-test_data_scaled = scaler.transform(x_test[:, 1:])
-# Separate normal and anomaly data for both training and testing sets
-normal_train_data = train_data_scaled[np.where(x_train[:, 0] == 1)]  # Assuming '1' represents normal data
-anomaly_train_data = train_data_scaled[np.where(x_train[:, 0] == 0)]  # Assuming '0' represents anomaly data
-normal_test_data = test_data_scaled[np.where(x_test[:, 0] == 1)]  # Assuming '1' represents normal data
-anomaly_test_data = test_data_scaled[np.where(x_test[:, 0] == 0)]  # Assuming '0' represents anomaly data
+data_scaled = scaler.fit(x_train)
+train_data_scaled = data_scaled.transform(x_train)
+test_data_scaled = data_scaled.transform(x_test)
 
-# Plot some normal data to visualize
+normal_train_data = pd.DataFrame(train_data_scaled).add_prefix('c').query('c0 == 0').values[:,1:]
+anomaly_train_data = pd.DataFrame(train_data_scaled).add_prefix('c').query('c0 > 0').values[:, 1:]
+normal_test_data = pd.DataFrame(test_data_scaled).add_prefix('c').query('c0 == 0').values[:,1:]
+anomaly_test_data = pd.DataFrame(test_data_scaled).add_prefix('c').query('c0 > 0').values[:, 1:]
+
 plt.plot(normal_train_data[0])
 plt.plot(normal_train_data[1])
 plt.plot(normal_train_data[2])
