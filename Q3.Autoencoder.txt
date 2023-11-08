@@ -1,0 +1,46 @@
+# Assignment 3
+# Use Autoencoder to implement anomaly detection. Build the model by using:
+# a. Import required libraries
+# b. Upload/access the dataset
+# c. An encoder converts it into latent representation
+# d. Decoder networks convert it back to the original input
+# e. Compile the models with Optimizer, Loss, and Evaluation Metrics
+# Dataset: ECG 
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import tensorflow as tf
+from tensorflow.keras.models import Model
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+mpl.rcParams['figure.figsize'] = (10, 5)
+mpl.rcParams['axes.grid'] = False
+
+!cat "/content/ECG5000_TRAIN.txt" "/content/ECG5000_TEST.txt" > ecg_final.txt
+df = pd.read_csv("/content/ecg_final.txt", sep='  ', header=None, engine='python')
+df.shape
+
+df = df.add_prefix('c')
+df['c0'].value_counts()
+
+x_train, x_test, y_train, y_test = train_test_split(df.values, df.values[:,0:1], test_size=0.2, random_state=111)
+
+scaler = MinMaxScaler()
+scaler.fit(x_train[:, 1:])
+train_data_scaled = scaler.transform(x_train[:, 1:])
+test_data_scaled = scaler.transform(x_test[:, 1:])
+# Separate normal and anomaly data for both training and testing sets
+normal_train_data = train_data_scaled[np.where(x_train[:, 0] == 1)]  # Assuming '1' represents normal data
+anomaly_train_data = train_data_scaled[np.where(x_train[:, 0] == 0)]  # Assuming '0' represents anomaly data
+normal_test_data = test_data_scaled[np.where(x_test[:, 0] == 1)]  # Assuming '1' represents normal data
+anomaly_test_data = test_data_scaled[np.where(x_test[:, 0] == 0)]  # Assuming '0' represents anomaly data
+
+# Plot some normal data to visualize
+plt.plot(normal_train_data[0])
+plt.plot(normal_train_data[1])
+plt.plot(normal_train_data[2])
+plt.title("Normal Data")
+plt.show()
